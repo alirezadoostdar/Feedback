@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D86C5723-BC8F-4CE9-812D-9F9E76DA3A44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{29F29324-01AA-4087-B54D-858E3DC7FEE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feedback.APIs", "src\Feedback.APIs\Feedback.APIs.csproj", "{F3A01F41-2B72-4521-946F-3353756F590C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3A01F41-2B72-4521-946F-3353756F590C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3A01F41-2B72-4521-946F-3353756F590C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3A01F41-2B72-4521-946F-3353756F590C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3A01F41-2B72-4521-946F-3353756F590C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F3A01F41-2B72-4521-946F-3353756F590C} = {D86C5723-BC8F-4CE9-812D-9F9E76DA3A44}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {49F505C8-082C-4FA6-A5C6-EB3F18EF7187}
+	EndGlobalSection
+EndGlobal
