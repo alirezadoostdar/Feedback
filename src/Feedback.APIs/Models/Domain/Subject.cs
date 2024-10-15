@@ -6,6 +6,7 @@ public class Subject
     public DateTime CreatedOn { get; set; }
     public bool Locked { get; set; }
     public DateTime? ExpiredOn { get; set; }
+    public required string Title  { get; set; }
     public int TenantId { get; set; }
     public ICollection<Review> Reviews { get; set; }
 }

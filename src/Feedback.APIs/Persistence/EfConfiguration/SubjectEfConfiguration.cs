@@ -15,7 +15,9 @@ public class SubjectEfConfiguration : IEntityTypeConfiguration<Subject>
             .HasDefaultValue(false) ;
         builder.Property(x => x.CreatedOn).IsRequired().HasDefaultValueSql("GETDATE()");
         builder.Property(x => x.TenantId).IsRequired();
-        builder.Property(x=>x.ExpiredOn).IsRequired(false) ;
+        builder.Property(x=>x.ExpiredOn).IsRequired(false);
+        builder.Property(x => x.Title).IsRequired(false).HasMaxLength(100);
+
         builder.OwnsMany(x => x.Reviews, reviewBuilder =>
         {
             reviewBuilder.ToTable(FeedbackDbContextSchema.ReviewTableName);
