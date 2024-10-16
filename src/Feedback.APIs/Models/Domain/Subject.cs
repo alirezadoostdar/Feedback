@@ -14,4 +14,15 @@ public class Subject
     {
         Title = title , TenantId = tenantId 
     };
+
+    internal void AddReview(int rate, string comment, string reviewName)
+    {
+        Reviews ??= new List<Review>();
+        Reviews.Add(new Review
+        {
+            Comment = comment,
+            ReviewerName = reviewName,
+            Rate = rate
+        });
+    }
 }

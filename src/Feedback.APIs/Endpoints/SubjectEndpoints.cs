@@ -4,6 +4,7 @@ using Feedback.APIs.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Feedback.APIs.Endpoints;
 
@@ -15,7 +16,7 @@ public static class SubjectEndpoints
 
         group.MapPost("/", CreateSubject);
         group.MapGet("/{id}/check", CreateSubjectForReview);
-        group.MapPost("/review/",);
+        group.MapPost("/review/", CreateReview);
     }
 
     public static async Task<Results<ValidationProblem,Created>> CreateSubject(FeedbackDbContext dbContext,
@@ -37,6 +38,41 @@ public static class SubjectEndpoints
         var longUrl = $"{configuration["BaseUrl"]}/subject/{subject.Id}/";
         //we can change long url to short url
         return TypedResults.Created(longUrl);
+    }
+
+    public static async Task<Results<ValidationProblem, Ok,NotFound,BadRequest<string>>> CreateReview(FeedbackDbContext dbContext,
+    IValidator<CreateReviewRequest> validator,
+    IConfiguration configuration,
+    CreateReviewRequest request)
+    {
+        var validate = validator.Validate(request);
+        if (!validate.IsValid)
+        {
+            return TypedResults.ValidationProblem(validate.ToDictionary());
+        }
+
+        var subject = dbContext.Subjects
+                               .Include(f => f.Reviews)                   
+                               .FirstOrDefault(x => x.Id == request.SubjectId);
+
+        if (subject is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (subject.Locked)
+        {
+            return TypedResults.BadRequest("your subject locked");
+        }
+
+        if (subject.ExpiredOn is not null && subject.ExpiredOn < DateTime.Now)
+        {
+            return TypedResults.BadRequest("your subject locked");
+        }
+
+        subject.AddReview(request.Rate, request.Comment, request.ReviewName);
+        await dbContext.SaveChangesAsync();
+        return TypedResults.Ok();
     }
 
     public static async Task<Results<NotFound,Ok,BadRequest<string>>> CreateSubjectForReview(FeedbackDbContext dbContext,
