@@ -1,7 +1,9 @@
 ﻿using Feedback.APIs.Endpoints.Contracts;
+using Feedback.APIs.Models.Domain;
 using Feedback.APIs.Persistence;
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Feedback.APIs.Endpoints;
 
@@ -11,16 +13,15 @@ public static class SubjectEndpoints
     {
         var group = endpoint.MapGroup("/subject");
 
-        group.MapPost("/", (
-            FeedbackDbContext dbContext,
-            CreateSubjectRequest request) =>
-        {
-
-        });
+        group.MapPost("/", CreateSubject);
+        group.MapGet("/{id}/check", CreateSubjectForReview);
+        group.MapPost("/review/",);
     }
 
     public static async Task<Results<ValidationProblem,Created>> CreateSubject(FeedbackDbContext dbContext,
         IValidator<CreateSubjectRequest> validator,
+        IUserPrincial userPrincial,
+        IConfiguration configuration,
         CreateSubjectRequest request)
     {
         var validate = validator.Validate(request);
@@ -28,6 +29,37 @@ public static class SubjectEndpoints
         {
             return TypedResults.ValidationProblem(validate.ToDictionary());
         }
-        return type
+
+        var subject = Subject.Create(request.ExpirationOn, request.Title, userPrincial.TenantId);
+        dbContext.Subjects.Add(subject);
+        await dbContext.SaveChangesAsync();
+
+        var longUrl = $"{configuration["BaseUrl"]}/subject/{subject.Id}/";
+        //we can change long url to short url
+        return TypedResults.Created(longUrl);
+    }
+
+    public static async Task<Results<NotFound,Ok,BadRequest<string>>> CreateSubjectForReview(FeedbackDbContext dbContext,
+    IConfiguration configuration,
+    [FromRoute] int id)
+    {
+        var subject = dbContext.Subjects.FirstOrDefault(x => x.Id == id);
+
+        if(subject is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        if (subject.Locked)
+        {
+            return TypedResults.BadRequest("your subject locked");
+        }
+
+        if (subject.ExpiredOn is not null && subject.ExpiredOn < DateTime.Now)
+        {
+            return TypedResults.BadRequest("your subject locked");
+        }
+
+        return TypedResults.Ok();
     }
 }

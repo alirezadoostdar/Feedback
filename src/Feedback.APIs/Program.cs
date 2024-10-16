@@ -1,5 +1,10 @@
+using Feedback.APIs;
+using Feedback.APIs.Endpoints;
 using Feedback.APIs.Persistence;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +12,21 @@ builder.Services.AddDbContext<FeedbackDbContext>(configure =>
 {
     configure.UseSqlServer(builder.Configuration.GetConnectionString(FeedbackDbContext.ConnectionStringName));
 });
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserPrincial>(sp =>
+{
+    var httpContext = sp.GetRequiredService<IHttpContextAccessor>().HttpContext;
+
+    if (!httpContext.Request.Headers.TryGetValue(UserPrincipal.TenantHeaderName, out StringValues value))
+    {
+        throw new InvalidOperationException($"can not find {UserPrincipal.TenantHeaderName} in your header request");
+    }
+    return new UserPrincipal(Convert.ToInt32(value));
+});
+
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -20,5 +40,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.MapSubjectEndpoin();
 app.Run();
 

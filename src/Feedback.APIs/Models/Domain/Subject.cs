@@ -9,4 +9,9 @@ public class Subject
     public required string Title  { get; set; }
     public int TenantId { get; set; }
     public ICollection<Review> Reviews { get; set; }
+
+    public static Subject Create(DateTime? expired , string title , int tenantId)=> new Subject
+    {
+        Title = title , TenantId = tenantId 
+    };
 }
