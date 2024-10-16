@@ -18,6 +18,7 @@ public static class SubjectEndpoints
         group.MapGet("/{id}/check", CreateSubjectForReview);
         group.MapPost("/review/", CreateReview);
         group.MapGet("/review/ranking/{id}", GetRanking);
+        group.MapGet("/{id}/review/", GetAllReviews);
     }
 
     public static async Task<Results<ValidationProblem,Created>> CreateSubject(FeedbackDbContext dbContext,
@@ -112,4 +113,22 @@ public static class SubjectEndpoints
 
         return TypedResults.Ok(subject.Reviews.Average(f =>f.Rate));
     }
+
+    public static async Task<Results<NotFound, Ok<IEnumerable<ReviewResponse>>>> GetAllReviews(FeedbackDbContext dbContext,
+    [FromRoute] int id)
+    {
+        var subject = dbContext.Subjects.Include(d => d.Reviews).FirstOrDefault(x => x.Id == id);
+
+        if (subject is null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(subject.Reviews.Select(f => new ReviewResponse { Comment=f.Comment}));
+    }
+}
+
+public class ReviewResponse
+{
+    public string Comment { get; set; }
 }
