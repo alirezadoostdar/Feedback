@@ -28,6 +28,7 @@ public class SubjectService(FeedbackDbContext feedbackDbContext)
                                         .FirstOrDefault(x=>x.Id == subjectId);
         CheckActionOnReview(subject);
 
+
         subject.AddReview(rate, comment, reviewName);
         await _feedbackDbContext.SaveChangesAsync();
     }
